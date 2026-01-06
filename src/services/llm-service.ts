@@ -9,9 +9,8 @@ import type { ModelInfo, ChatMessage, TokenChunk } from '@/providers/types';
 // Configuration
 // ============================================
 
-const DEFAULT_GHOSTVAULT_URL =
-  (import.meta.env.DEV ? '/api/llm' : 'http://localhost:3001/api/llm');
-const GHOSTVAULT_URL = (import.meta.env.VITE_GHOSTVAULT_URL as string | undefined) || DEFAULT_GHOSTVAULT_URL;
+const DEFAULT_GHOSTVAULT_URL = (import.meta.env.VITE_GHOSTVAULT_URL as string | undefined) || 'http://localhost:4000';
+const GHOSTVAULT_URL = DEFAULT_GHOSTVAULT_URL.replace(/\/+$/, '');
 
 // ============================================
 // Types
@@ -144,7 +143,7 @@ class LLMService {
     this.abortController = new AbortController();
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat`, {
+      const response = await fetch(`${this.baseUrl}/llm/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

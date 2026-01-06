@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useOrchestration } from '@/context/OrchestrationContext';
 import { llmService, type ChatPayload, type HealthResponse } from '@/services/llm-service';
-import { streamMockTokens } from './use-mock-streaming';
-import type { ProviderId, PhaseType } from '@/types';
+import type { ProviderId } from '@/types';
 import type { TokenChunk } from '@/providers/types';
 
 // ============================================
@@ -35,7 +34,6 @@ export function useLLMProvider(): UseLLMProviderReturn {
   const [isFetchingModels, setIsFetchingModels] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const streamingRef = useRef(false);
-  const fallbackAbortRef = useRef<AbortController | null>(null);
 
   /**
    * Check connection to GhostVault and update provider status
@@ -137,61 +135,17 @@ export function useLLMProvider(): UseLLMProviderReturn {
     streamingRef.current = true;
     
     try {
-      const health = await llmService.checkHealth();
-      const backendOk =
-        health.status === 'ok' ||
-        health.providers.ollama.available ||
-        health.providers.openrouter.available;
-
-      if (backendOk) {
-        try {
-          for await (const chunk of llmService.streamChat(payload)) {
-            if (!streamingRef.current) break;
-            yield chunk;
-            if (chunk.done) return;
-          }
-          // If stream unexpectedly ends without done, treat as error
-          throw new Error('Stream ended unexpectedly');
-        } catch (err) {
-          // Surface stream failure when backend is healthy
-          throw err instanceof Error ? err : new Error('Streaming failed');
-        }
-      }
-
-      dispatch({
-        type: 'SET_CONNECTION_STATUS',
-        payload: { ollamaConnected: false },
-      });
-      dispatch({
-        type: 'UPDATE_SETTINGS',
-        payload: {
-          executionEngine: {
-            ...settings.executionEngine,
-            ollama: { ...settings.executionEngine.ollama, isConnected: false },
-            openrouter: { ...settings.executionEngine.openrouter, isConnected: false },
-          },
-        },
-      });
-
-      // Only fall back when backend is not healthy
-      const fallbackController = new AbortController();
-      fallbackAbortRef.current = fallbackController;
-      const fallbackPhase: PhaseType = (payload.metadata?.phase as PhaseType) || 'spec';
-
-      for await (const chunk of streamMockTokens(fallbackPhase, { signal: fallbackController.signal })) {
-        if (!streamingRef.current) {
-          fallbackController.abort();
-          return;
-        }
+      for await (const chunk of llmService.streamChat(payload)) {
+        if (!streamingRef.current) break;
         yield chunk;
         if (chunk.done) return;
       }
+      throw new Error('Stream ended unexpectedly');
     } finally {
       setIsStreaming(false);
       streamingRef.current = false;
-      fallbackAbortRef.current = null;
     }
-  }, [dispatch, settings.executionEngine]);
+  }, []);
 
   /**
    * Cancel ongoing stream
@@ -199,7 +153,6 @@ export function useLLMProvider(): UseLLMProviderReturn {
   const cancelStream = useCallback(() => {
     streamingRef.current = false;
     llmService.cancelStream();
-    fallbackAbortRef.current?.abort();
     setIsStreaming(false);
   }, []);
 

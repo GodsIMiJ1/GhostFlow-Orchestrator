@@ -3,7 +3,8 @@ import { useOrchestration } from '@/context/OrchestrationContext';
 import { useLLMProvider } from './use-llm-provider';
 import type { AgentRole, FileOp, PhaseType } from '@/types';
 import type { ChatPayload } from '@/services/llm-service';
-import { generateId, PHASE_NAMES } from '@/data/mock-data';
+import { llmService } from '@/services/llm-service';
+import { generateId, PHASE_NAMES, PHASE_ORDER } from '@/data/mock-data';
 
 interface ExecuteAgentParams {
   taskId: string;
@@ -110,46 +111,57 @@ export function useAgentExecution() {
         },
       };
 
-      const streamId = generateId('stream');
-      activeExecutionRef.current = streamId;
-      activeAgentIdRef.current = agent.id;
-      setIsExecuting(true);
-
-      // Mark phase active and agent working
-      startPhase(taskId, phase);
-      dispatch({ type: 'CLEAR_LOGS', payload: agent.id });
-      dispatch({
-        type: 'UPDATE_AGENT',
-        payload: { id: agent.id, updates: { status: 'working', currentTaskId: taskId } },
-      });
-
-      // Boundary marker
-      dispatch({
-        type: 'ADD_TERMINAL_ENTRY',
-        payload: {
-          id: generateId('term'),
-          agentRole: agent.role,
-          phase,
-          type: 'boundary',
-          content: `Phase: ${PHASE_NAMES[phase] || phase}`,
-          timestamp: Date.now(),
-        },
-      });
-      dispatch({
-        type: 'ADD_LOG_ENTRY',
-        payload: {
-          id: generateId('log'),
-          timestamp: new Date(),
-          level: 'agent',
-          source: agent.id,
-          agentId: agent.id,
-          phase,
-          message: `Phase: ${PHASE_NAMES[phase] || phase}`,
-          isStreaming: true,
-        },
-      });
-
+      let streamId: string | null = null;
       try {
+        const health = await llmService.checkHealth();
+        const backendOk =
+          health.status === 'ok' ||
+          health.providers.ollama.available ||
+          health.providers.openrouter.available;
+
+        if (!backendOk) {
+          throw new Error('GhostVault health check failed');
+        }
+
+        streamId = generateId('stream');
+        activeExecutionRef.current = streamId;
+        activeAgentIdRef.current = agent.id;
+        setIsExecuting(true);
+
+        // Mark phase active and agent working
+        startPhase(taskId, phase);
+        dispatch({ type: 'CLEAR_LOGS', payload: agent.id });
+        dispatch({
+          type: 'UPDATE_AGENT',
+          payload: { id: agent.id, updates: { status: 'working', currentTaskId: taskId } },
+        });
+
+        // Boundary marker
+        dispatch({
+          type: 'ADD_TERMINAL_ENTRY',
+          payload: {
+            id: generateId('term'),
+            agentRole: agent.role,
+            phase,
+            type: 'boundary',
+            content: `Phase: ${PHASE_NAMES[phase] || phase}`,
+            timestamp: Date.now(),
+          },
+        });
+        dispatch({
+          type: 'ADD_LOG_ENTRY',
+          payload: {
+            id: generateId('log'),
+            timestamp: new Date(),
+            level: 'agent',
+            source: agent.id,
+            agentId: agent.id,
+            phase,
+            message: `Phase: ${PHASE_NAMES[phase] || phase}`,
+            isStreaming: true,
+          },
+        });
+
         let counter = 0;
         let accumulated = '';
         for await (const chunk of streamChat(payload)) {
@@ -198,6 +210,11 @@ export function useAgentExecution() {
             });
           }
           completePhase(taskId, phase);
+          const currentIndex = PHASE_ORDER.indexOf(phase);
+          const nextPhase = currentIndex >= 0 ? PHASE_ORDER[currentIndex + 1] : undefined;
+          if (nextPhase) {
+            startPhase(taskId, nextPhase);
+          }
           dispatch({
             type: 'UPDATE_AGENT',
             payload: { id: agent.id, updates: { status: 'idle', currentTaskId: undefined } },
@@ -249,7 +266,7 @@ export function useAgentExecution() {
           payload: { id: agent.id, updates: { status: 'error' } },
         });
       } finally {
-        if (activeExecutionRef.current === streamId) {
+        if (streamId && activeExecutionRef.current === streamId) {
           dispatch({
             type: 'UPDATE_AGENT',
             payload: { id: agent.id, updates: { status: 'idle', currentTaskId: undefined } },

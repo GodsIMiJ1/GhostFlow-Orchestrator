@@ -18,6 +18,7 @@ import {
   DEFAULT_AGENTS,
   generateId,
   createMockLogEntry,
+  PHASE_ORDER,
 } from '@/data/mock-data';
 import {
   loadTasks,
@@ -31,6 +32,7 @@ import {
 } from '@/hooks/use-persistence';
 import { persistenceService } from '@/services/persistence-service';
 import { useOrchestrationBootstrap } from '@/hooks/use-orchestration-bootstrap';
+import { llmService } from '@/services/llm-service';
 
 // ============================================
 // State Types
@@ -592,6 +594,40 @@ export function OrchestrationProvider({ children }: OrchestrationProviderProps) 
     toggleRightSidebar,
     setTheme,
   };
+
+  useEffect(() => {
+    let mounted = true;
+    const provider = state.settings.executionEngine.activeProvider;
+    (async () => {
+      const models = await llmService.listModels(provider);
+      if (!mounted) return;
+      const modelNames = models.map((m) => m.id || m.name).filter(Boolean);
+      const existingAssignments = state.settings.executionEngine.modelAssignments;
+      const normalizedAssignments = { ...existingAssignments };
+      if (modelNames[0]) {
+        Object.keys(normalizedAssignments).forEach((roleKey) => {
+          if (!normalizedAssignments[roleKey as keyof typeof normalizedAssignments]) {
+            normalizedAssignments[roleKey as keyof typeof normalizedAssignments] = modelNames[0];
+          }
+        });
+      }
+      dispatch({
+        type: 'UPDATE_SETTINGS',
+        payload: {
+          executionEngine: {
+            ...state.settings.executionEngine,
+            availableModels: modelNames,
+            modelAssignments: normalizedAssignments,
+          },
+        },
+      });
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <OrchestrationContext.Provider value={value}>
