@@ -11,17 +11,14 @@ import { useAgentExecution } from '@/hooks/use-agent-execution';
 export default function Dashboard() {
   const { state, dispatch, startPhase, completePhase } = useOrchestration();
   const { activeTask, streamingLogs } = state;
-  const { executeAgent, cancelExecution, isStreaming, resolveAgentRoleForPhase } = useAgentExecution();
+  const { executeAgent, cancelExecution, isStreaming } = useAgentExecution();
   const [isPaused, setIsPaused] = useState(false);
 
   const handleStart = () => {
     if (activeTask) {
-      const agentRole = resolveAgentRoleForPhase(activeTask.currentPhase);
-      if (!agentRole) return;
       executeAgent({
         taskId: activeTask.id,
         phase: activeTask.currentPhase,
-        agentRole,
       });
       setIsPaused(false);
     }
@@ -116,9 +113,7 @@ export default function Dashboard() {
               onResume={handleStart}
               onCancel={cancelExecution}
               onRetry={(phase) => {
-                const agentRole = resolveAgentRoleForPhase(phase);
-                if (!agentRole) return;
-                executeAgent({ taskId: activeTask.id, phase, agentRole });
+                executeAgent({ taskId: activeTask.id, phase });
               }}
               onAdvancePhase={handleAdvancePhase}
               onApprove={() => handleAdvancePhase()}
@@ -153,9 +148,7 @@ export default function Dashboard() {
                     onResume={handleStart}
                     onCancel={cancelExecution}
                     onRetry={(phase) => {
-                      const agentRole = resolveAgentRoleForPhase(phase);
-                      if (!agentRole) return;
-                      executeAgent({ taskId: activeTask.id, phase, agentRole });
+                      executeAgent({ taskId: activeTask.id, phase });
                     }}
                     onAdvancePhase={handleAdvancePhase}
                     onApprove={() => handleAdvancePhase()}

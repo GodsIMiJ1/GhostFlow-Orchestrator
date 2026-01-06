@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useOrchestration } from '@/context/OrchestrationContext';
 import { useLLMProvider } from './use-llm-provider';
 import type { AgentRole, FileOp, PhaseType } from '@/types';
@@ -9,15 +9,16 @@ import { generateId, PHASE_NAMES, PHASE_ORDER } from '@/data/mock-data';
 interface ExecuteAgentParams {
   taskId: string;
   phase: PhaseType;
-  agentRole: AgentRole;
+  agentRole?: AgentRole;
 }
 
-const PHASE_AGENT_FALLBACK: Partial<Record<PhaseType, AgentRole>> = {
+const PHASE_AGENT_ROLE: Record<PhaseType, AgentRole | null> = {
   spec: 'spec-writer',
   plan: 'planner',
   code: 'coder',
-  review: 'pr-reviewer',
+  review: 'qa',
   qa: 'qa',
+  done: null,
 };
 
 export function useAgentExecution() {
@@ -28,32 +29,26 @@ export function useAgentExecution() {
   const activeAgentIdRef = useRef<string | null>(null);
   const [runOutput, setRunOutput] = useState<Record<string, string>>({});
 
-  const agentsByRole = useMemo(() => {
-    return state.agents.reduce<Partial<Record<AgentRole, typeof state.agents[number]>>>((acc, agent) => {
-      acc[agent.role] = agent;
-      return acc;
-    }, {});
-  }, [state]);
-
   const resolveAgentForRole = useCallback(
-    (role: AgentRole) => agentsByRole[role],
-    [agentsByRole]
+    (role: AgentRole) => {
+      const agent = state.agents.find((a) => a.role === role);
+      if (!agent) {
+        throw new Error(`No agent registered for role ${role}`);
+      }
+      return agent;
+    },
+    [state.agents]
   );
 
   const resolveAgentRoleForPhase = useCallback(
-    (phase: PhaseType): AgentRole | null => {
-      // Prefer a direct role match
-      const direct = state.agents.find((a) => a.role === phase);
-      if (direct) return direct.role;
-
-      const mapped = PHASE_AGENT_FALLBACK[phase];
-      if (mapped && resolveAgentForRole(mapped)) return mapped;
-
-      // Fallback to first active agent
-      const first = state.agents.find((a) => a.isActive);
-      return first ? first.role : null;
+    (phase: PhaseType): AgentRole => {
+      const role = PHASE_AGENT_ROLE[phase];
+      if (!role) {
+        throw new Error(`No agent role mapped for phase ${phase}`);
+      }
+      return role;
     },
-    [resolveAgentForRole, state.agents]
+    []
   );
 
   const buildSystemPrompt = useCallback(
@@ -71,7 +66,7 @@ export function useAgentExecution() {
   );
 
   const executeAgent = useCallback(
-    async ({ taskId, phase, agentRole }: ExecuteAgentParams) => {
+    async ({ taskId, phase }: ExecuteAgentParams) => {
       if (isStreaming || isExecuting) return;
 
       const task = state.tasks.find((t) => t.id === taskId);
@@ -79,11 +74,11 @@ export function useAgentExecution() {
       if (!project) {
         throw new Error('No active project connected');
       }
-      const resolvedRole = resolveAgentRoleForPhase(phase);
-      const agent =
-        resolveAgentForRole(agentRole) ||
-        (resolvedRole ? resolveAgentForRole(resolvedRole as AgentRole) : null);
-      if (!task || !agent) return;
+      if (!task) {
+        throw new Error('No active task selected');
+      }
+      const mappedRole = resolveAgentRoleForPhase(phase);
+      const agent = resolveAgentForRole(mappedRole);
 
       const provider = state.settings.executionEngine.activeProvider;
       const model =
@@ -111,6 +106,7 @@ export function useAgentExecution() {
         },
       };
 
+      let streamId: string | null = null;
       let streamId: string | null = null;
       try {
         const health = await llmService.checkHealth();
