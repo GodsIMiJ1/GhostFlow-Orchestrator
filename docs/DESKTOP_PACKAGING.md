@@ -1,5 +1,7 @@
 # GhostFlow Desktop Packaging Guide
 
+The desktop shell must preserve GhostFlow’s safety model: context isolation, no Node integration in the renderer, and a narrow preload surface for guarded file operations.
+
 ## Electron Setup
 
 ### Installation
@@ -10,7 +12,6 @@ npm install electron electron-builder --save-dev
 ### Main Process (electron/main.js)
 ```javascript
 const { app, BrowserWindow } = require('electron');
-const path = require('path');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -19,9 +20,10 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     }
   });
-  
+
   win.loadURL('http://localhost:5173'); // Dev
   // win.loadFile('dist/index.html'); // Production
 }
@@ -43,51 +45,7 @@ app.whenReady().then(createWindow);
 }
 ```
 
----
-
-## Tauri Setup (Recommended)
-
-### Installation
-```bash
-npm install @tauri-apps/cli @tauri-apps/api --save-dev
-npx tauri init
-```
-
-### Configuration (src-tauri/tauri.conf.json)
-```json
-{
-  "productName": "GhostFlow",
-  "identifier": "com.ghostflow.app",
-  "build": { "devPath": "http://localhost:5173", "distDir": "../dist" },
-  "bundle": { "active": true, "targets": "all" }
-}
-```
-
-### Rust Commands (src-tauri/src/main.rs)
-```rust
-#[tauri::command]
-fn git_status(path: &str) -> Result<GitStatus, String> {
-    // Implement with git2 crate
-}
-
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![git_status])
-        .run(tauri::generate_context!())
-        .expect("error running app");
-}
-```
-
----
-
 ## Build Commands
-
-| Platform | Electron | Tauri |
-|----------|----------|-------|
-| macOS | `npm run electron:build -- --mac` | `npm run tauri build` |
-| Windows | `npm run electron:build -- --win` | `npm run tauri build` |
-| Linux | `npm run electron:build -- --linux` | `npm run tauri build` |
-
-## Bundle Sizes
-- Electron: ~150MB
-- Tauri: ~10MB
+- macOS: `npm run electron:build -- --mac`
+- Windows: `npm run electron:build -- --win`
+- Linux: `npm run electron:build -- --linux`

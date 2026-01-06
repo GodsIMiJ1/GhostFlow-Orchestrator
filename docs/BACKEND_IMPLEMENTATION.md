@@ -1,97 +1,52 @@
 # GhostFlow Backend Implementation Guide
 
-## Architecture Overview
+GhostFlow expects a local backend (GhostVault or equivalent) that provides deterministic, repo-scoped execution. The frontend sends intent and context; the backend streams tokens and never writes to disk on its own.
 
-GhostFlow requires a local backend to handle Ollama communication, Git operations, and file system access.
+## Required Capabilities
+- Serve `/api/llm/chat` as SSE with streamed tokens and optional `fileOps` intent.
+- Expose `/health` and `/models` to signal availability and model inventory.
+- Keep all operations scoped to the provided `repoPath`; do not perform implicit writes.
+- Surface errors directly; avoid silent fallbacks or retries that hide failure modes.
 
-### Option 1: Node.js + Express (Recommended for quick start)
+## Minimal Node.js Skeleton
 ```bash
 npm init -y
-npm install express cors ws simple-git glob
+npm install express cors
 ```
-
-### Option 2: Rust + Axum (Recommended for Tauri)
-```bash
-cargo new ghostflow-backend
-cargo add axum tokio serde git2
-```
-
-## Core Endpoints
-
-### Health Check
-```
-GET /api/health
-Response: { status: "healthy", ollamaConnected: true, gitAvailable: true }
-```
-
-### Ollama Integration
-```
-POST /api/ollama/chat
-Body: { model: string, messages: [], stream: boolean }
-Response: Server-Sent Events stream
-```
-
-### Git Operations
-```
-GET  /api/git/status?path=<projectPath>
-POST /api/git/branch { branchName, checkout }
-GET  /api/git/diff?staged=true
-POST /api/git/commit { message, files }
-```
-
-### File Operations
-```
-GET  /api/files?path=<filePath>
-POST /api/files { path, content }
-POST /api/files/search { pattern, type: "glob" | "regex" }
-```
-
-### Tool Execution
-```
-POST /api/tools/execute { agentId, toolName, arguments }
-```
-
-## WebSocket Events
-
-```typescript
-// Server -> Client
-{ type: "agent:output", payload: { token, agentId, phase } }
-{ type: "phase:change", payload: { taskId, currentPhase } }
-{ type: "tool:invoked", payload: { toolName, result } }
-{ type: "git:updated", payload: { status } }
-```
-
-## Security Considerations
-
-1. **Path Validation**: Prevent traversal attacks
-2. **Command Whitelist**: Only allow safe commands
-3. **Sandboxed Execution**: Restrict file access to project directory
-
-## Quick Start (Node.js)
 
 ```javascript
-const express = require('express');
-const cors = require('cors');
-const { simpleGit } = require('simple-git');
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', ollamaConnected: true, gitAvailable: true });
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true });
 });
 
-app.post('/api/ollama/chat', async (req, res) => {
+app.get('/api/models', (_req, res) => {
+  res.json({ models: [] }); // populate from your runtime
+});
+
+app.post('/api/llm/chat', async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
-  const response = await fetch('http://localhost:11434/api/chat', {
-    method: 'POST',
-    body: JSON.stringify({ ...req.body, stream: true })
-  });
-  response.body.pipe(res);
+  res.setHeader('Cache-Control', 'no-cache');
+  // Stream tokens from your provider; attach repo metadata from req.body.metadata
+  res.write(`event: token\ndata: ${JSON.stringify({ token: 'placeholder' })}\n\n`);
+  res.write(`event: end\ndata: ${JSON.stringify({ reason: 'demo' })}\n\n`);
+  res.end();
 });
 
-app.listen(3001, () => console.log('Backend running on :3001'));
+app.listen(3001, () => {
+  console.log('GhostFlow backend listening on :3001');
+});
 ```
 
-See `src/types/api.ts` for complete TypeScript interfaces.
+## Security Considerations
+- Validate every path and repo input; reject absolute/`..` traversal.
+- Avoid shell execution or side effects that escape the provided repo scope.
+- Keep streaming deterministic; do not downgrade to mock output without surfacing the reason.
+
+See `src/types/api.ts` for the current frontend contract.
