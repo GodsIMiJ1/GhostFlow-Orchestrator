@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrchestration } from '@/context/OrchestrationContext';
 import { cn } from '@/lib/utils';
-import type { GitFileStatus, FileOpProposal } from '@/types';
+import type { Agent, GitFileStatus, FileOpProposal } from '@/types';
 
 // Mock git status for demo
 const MOCK_GIT_STATUS = {
@@ -283,7 +283,7 @@ function FileItem({ file }: FileItemProps) {
 }
 
 interface AgentsPanelProps {
-  agents: typeof MOCK_GIT_STATUS extends never ? never : any[];
+  agents: Agent[];
 }
 
 function AgentsPanel({ agents }: AgentsPanelProps) {

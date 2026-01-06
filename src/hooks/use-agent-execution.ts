@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useOrchestration } from '@/context/OrchestrationContext';
 import { useLLMProvider } from './use-llm-provider';
-import type { AgentRole, PhaseType } from '@/types';
+import type { AgentRole, FileOp, PhaseType } from '@/types';
 import type { ChatPayload } from '@/services/llm-service';
 import { generateId, PHASE_NAMES } from '@/data/mock-data';
 
@@ -32,7 +32,7 @@ export function useAgentExecution() {
       acc[agent.role] = agent;
       return acc;
     }, {});
-  }, [state.agents]);
+  }, [state]);
 
   const resolveAgentForRole = useCallback(
     (role: AgentRole) => agentsByRole[role],
@@ -300,21 +300,25 @@ export function useAgentExecution() {
   };
 }
 
-function extractFileOps(text: string) {
+function isFileOp(value: unknown): value is FileOp {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as { type?: unknown; path?: unknown; diff?: unknown };
+  const validType = candidate.type === 'create' || candidate.type === 'modify' || candidate.type === 'delete';
+  return validType && typeof candidate.path === 'string' && typeof candidate.diff === 'string';
+}
+
+function extractFileOps(text: string): FileOp[] {
   const matches = Array.from(text.matchAll(/\{[\s\S]*?"fileOps"[\s\S]*?\}/g));
   const candidate = matches.pop()?.[0];
   if (!candidate) return [];
 
   try {
-    const parsed = JSON.parse(candidate);
-    if (!parsed?.fileOps || !Array.isArray(parsed.fileOps)) return [];
-    return parsed.fileOps.filter(
-      (op: any) =>
-        op &&
-        typeof op.path === 'string' &&
-        typeof op.diff === 'string' &&
-        (op.type === 'create' || op.type === 'modify' || op.type === 'delete')
-    );
+    const parsed = JSON.parse(candidate) as unknown;
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as { fileOps?: unknown }).fileOps)) {
+      return [];
+    }
+    const fileOps = (parsed as { fileOps: unknown[] }).fileOps;
+    return fileOps.filter((op): op is FileOp => isFileOp(op));
   } catch {
     return [];
   }

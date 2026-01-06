@@ -138,7 +138,10 @@ export function useLLMProvider(): UseLLMProviderReturn {
     
     try {
       const health = await llmService.checkHealth();
-      const backendOk = health.status === 'ok' || health.providers.ollama.available || health.providers.openrouter.available || (health as any).ok === true;
+      const backendOk =
+        health.status === 'ok' ||
+        health.providers.ollama.available ||
+        health.providers.openrouter.available;
 
       if (backendOk) {
         try {

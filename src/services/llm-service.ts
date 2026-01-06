@@ -254,10 +254,10 @@ class LLMService {
     // Handle token events
     if (eventType === 'token' || data) {
       try {
-        const parsed = JSON.parse(data) as TokenChunk & { token?: string };
+        const parsed = JSON.parse(data) as TokenChunk & { token?: string; done?: boolean };
         // Normalize token field to content
         if (parsed.token && !parsed.content) {
-          return { content: parsed.token, done: Boolean((parsed as any).done) };
+          return { content: parsed.token, done: Boolean(parsed.done) };
         }
         return parsed;
       } catch {

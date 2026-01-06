@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { ChevronDown, Zap, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import type { ProviderId, AgentRole } from '@/types';
+import type { ProviderId, AgentRole, PhaseType } from '@/types';
 
 export default function SettingsPage() {
   const { state, dispatch } = useOrchestration();
@@ -242,10 +242,10 @@ export default function SettingsPage() {
           <section className="rounded-lg border bg-card p-4">
             <h2 className="font-semibold mb-4">Human Approval Gates</h2>
             <div className="space-y-3">
-              {['spec', 'plan', 'code', 'review', 'qa'].map((phase) => (
+              {(['spec', 'plan', 'code', 'review', 'qa'] as PhaseType[]).map((phase) => (
                 <div key={phase} className="flex items-center justify-between">
                   <span className="text-sm capitalize">{phase} Phase</span>
-                  <Switch defaultChecked={settings.project.humanApprovalGates.includes(phase as any)} />
+                  <Switch defaultChecked={settings.project.humanApprovalGates.includes(phase)} />
                 </div>
               ))}
             </div>
