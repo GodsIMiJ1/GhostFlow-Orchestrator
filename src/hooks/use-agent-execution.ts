@@ -107,7 +107,6 @@ export function useAgentExecution() {
       };
 
       let streamId: string | null = null;
-      let streamId: string | null = null;
       try {
         const health = await llmService.checkHealth();
         const backendOk =
