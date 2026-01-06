@@ -1,35 +1,89 @@
 # GhostFlow
 
-Repo-aware AI orchestration with an explicit plan → review → apply control loop.
+Deterministic, repo-aware AI orchestration with explicit human control.
+
+GhostFlow is an AI execution framework built around a strict plan → review → apply control loop. It enables powerful AI-assisted development without surrendering authority, transparency, or safety.
+
+GhostFlow does not “auto-edit your code.” It proposes, you inspect, and only then does anything change.
 
 ## Why GhostFlow Exists
-GhostFlow keeps AI-assisted changes inside a transparent guardrail: plans are stated up front, proposals are reviewable before anything touches disk, and users keep full control over when and how changes are applied.
+Most AI coding tools collapse intent, execution, and mutation into a single opaque step. GhostFlow deliberately separates thinking from action. This architecture exists to solve three hard problems:
 
-## Engineering Loop
-1. **Plan**: The agent outlines intended steps using current repo context.
-2. **Propose**: It drafts diffs and file operations as intent-only outputs.
-3. **Review**: You inspect the proposed changes, paths, and diffs before anything is written.
-4. **Apply**: Approved changes are executed with guarded file access scoped to the active repo.
+- **Trust** — You should see exactly what an AI intends to do before it touches your repo.
+- **Safety** — File writes must be scoped, validated, and explicitly approved.
+- **Agency** — Humans stay in control of execution, timing, and scope.
 
-## Features
-- Repo awareness with persistent context tied to the active workspace.
-- Live streaming output for plans, proposals, and logs.
-- Guarded file operations: no writes occur without explicit approval and path validation.
-- Local-first execution routed through your own runtime; keys and context stay on your machine.
-- Electron desktop shell for a native, offline-friendly experience.
+GhostFlow treats AI as a junior engineer with a clipboard, not a root shell.
 
-## Getting Started (Local)
-- Install Node.js 18+ and npm.
-- Install dependencies: `npm install`.
-- Run the web app: `npm run dev`.
-- Launch the desktop shell against the local app: `npm run electron:start`.
-- Lint before changes if desired: `npm run lint`.
+## Core Execution Model
+GhostFlow enforces a four-stage, non-bypassable loop:
+
+1. **Plan**  
+   The agent analyzes the active repository and produces a structured execution plan: files involved, intended operations, dependency assumptions, and order of execution. No files are modified at this stage.
+
+2. **Propose**  
+   The agent generates intent-only outputs: draft diffs, file operation manifests, and path-level change previews. These are proposals, not actions.
+
+3. **Review**  
+   You inspect diffs, paths, operation types, and scope boundaries. Nothing proceeds without explicit approval.
+
+4. **Apply**  
+   Approved changes are executed through a guarded file system layer: repo-scoped, path-validated, write-restricted, and auditable. There is no silent execution path.
+
+## Key Features
+**Repo-Aware Context**
+- Persistent understanding of the active workspace
+- No stateless prompt guessing
+
+**Explicit Control Loop**
+- Plan → Propose → Review → Apply is enforced by design
+
+**Guarded File Operations**
+- Zero writes without approval
+- Path and scope validation before execution
+
+**Live Streaming Visibility**
+- Real-time plans, proposals, and execution logs
+- No hidden background actions
+
+**Local-First Architecture**
+- Runs on your machine
+- Your keys, your code, your context
+
+**Electron Desktop Shell**
+- Native app experience
+- Offline-friendly
+- No dependency on hosted environments
+
+## What GhostFlow Is Not
+- ❌ An autonomous code mutator
+- ❌ A black-box “AI writes directly to disk” tool
+- ❌ A prompt-to-commit generator
+
+GhostFlow is an orchestration layer, not an autopilot.
+
+## Getting Started (Local Development)
+**Prerequisites**
+- Node.js 18+
+- npm
+
+**Setup**
+- `npm install`
+
+**Run the Web App**
+- `npm run dev`
+
+**Launch the Desktop Shell**
+- `npm run electron:start`
+
+**Lint (Optional but Recommended)**
+- `npm run lint`
 
 ## Documentation
-Additional design and implementation details live in `docs/`.
+Design notes, architectural decisions, and deeper implementation details are available in the `/docs` directory.
 
-## Status
-v0.1.0 — initial open-source release.
+## Project Status
+v0.1.0 — Initial open-source release. This release establishes the core orchestration model, guarded execution flow, and desktop runtime. Future versions will expand agent capabilities, policy layers, and orchestration depth.
 
 ## License
-Apache 2.0. See `LICENSE` for details.
+Apache License 2.0. See `LICENSE` for details.
