@@ -1,3 +1,10 @@
+<p align="center">
+  <img src="assets/ghostflow-banner.png" alt="GhostFlow Banner" />
+  <br />
+  <em><strong>Conscious AI Orchestration for Sovereign Developers</strong></em>
+</p>
+
+
 # 🔥 GHOSTFLOW
 
 > **“Plan it. Propose it. Review it. Approve it. _Then — and only then — apply it.”**
