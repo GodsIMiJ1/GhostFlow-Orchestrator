@@ -1,89 +1,123 @@
-# GhostFlow
+# 🔥 GHOSTFLOW
 
-Deterministic, repo-aware AI orchestration with explicit human control.
+> **“Plan it. Propose it. Review it. Approve it. _Then — and only then — apply it.”**
+> — *The Ghost King’s Law of Execution*
 
-GhostFlow is an AI execution framework built around a strict plan → review → apply control loop. It enables powerful AI-assisted development without surrendering authority, transparency, or safety.
+GhostFlow is a **repo-aware AI orchestration system** designed to keep every automated change inside a **transparent, controlled, sovereign loop**. Nothing hits your disk unless **you** say so.
 
-GhostFlow does not “auto-edit your code.” It proposes, you inspect, and only then does anything change.
+Built for devs who want **full authority over AI assistance**, GhostFlow flips the script on the black-box copilot paradigm. Here, **you’re the conductor. The AI obeys.**
 
-## Why GhostFlow Exists
-Most AI coding tools collapse intent, execution, and mutation into a single opaque step. GhostFlow deliberately separates thinking from action. This architecture exists to solve three hard problems:
+---
 
-- **Trust** — You should see exactly what an AI intends to do before it touches your repo.
-- **Safety** — File writes must be scoped, validated, and explicitly approved.
-- **Agency** — Humans stay in control of execution, timing, and scope.
+## 💡 Why GhostFlow Exists
 
-GhostFlow treats AI as a junior engineer with a clipboard, not a root shell.
+Modern AI tools try to move too fast — writing code, making changes, and committing without oversight.
 
-## Core Execution Model
-GhostFlow enforces a four-stage, non-bypassable loop:
+**GhostFlow enforces discipline.** It turns automation into a **deliberate 4-phase engineering ritual**:
 
-1. **Plan**  
-   The agent analyzes the active repository and produces a structured execution plan: files involved, intended operations, dependency assumptions, and order of execution. No files are modified at this stage.
+1. **Plan** → The agent reads your repo and outlines its intended steps.
+2. **Propose** → Diffs, file ops, and directory changes are shown as dry-run intent only.
+3. **Review** → You inspect and approve (or reject) each part. Nothing applies without consent.
+4. **Apply** → Only after approval does GhostFlow execute the changes, scoped to your repo.
 
-2. **Propose**  
-   The agent generates intent-only outputs: draft diffs, file operation manifests, and path-level change previews. These are proposals, not actions.
+Every step is visible. Every move is yours to command.
 
-3. **Review**  
-   You inspect diffs, paths, operation types, and scope boundaries. Nothing proceeds without explicit approval.
+---
 
-4. **Apply**  
-   Approved changes are executed through a guarded file system layer: repo-scoped, path-validated, write-restricted, and auditable. There is no silent execution path.
+## ⚙️ Core Features
 
-## Key Features
-**Repo-Aware Context**
-- Persistent understanding of the active workspace
-- No stateless prompt guessing
+* 🔍 **Persistent Repo Awareness**
+  Context is tied to your current workspace. No guesswork.
 
-**Explicit Control Loop**
-- Plan → Propose → Review → Apply is enforced by design
+* 🔁 **Streaming Plan → Proposal → Review Loop**
+  See live AI output as it generates plans, proposes diffs, and logs intent.
 
-**Guarded File Operations**
-- Zero writes without approval
-- Path and scope validation before execution
+* 🛡️ **Guarded File Operations**
+  No disk changes occur without explicit approval and scoped validation.
 
-**Live Streaming Visibility**
-- Real-time plans, proposals, and execution logs
-- No hidden background actions
+* 🧩 **Local-First Architecture**
+  All execution routes through your own runtime. Keys and context stay local.
 
-**Local-First Architecture**
-- Runs on your machine
-- Your keys, your code, your context
+* 🖥️ **Electron Shell + Web App**
+  Use the desktop experience or run the web UI locally. Fully offline-capable.
 
-**Electron Desktop Shell**
-- Native app experience
-- Offline-friendly
-- No dependency on hosted environments
+---
 
-## What GhostFlow Is Not
-- ❌ An autonomous code mutator
-- ❌ A black-box “AI writes directly to disk” tool
-- ❌ A prompt-to-commit generator
+## 🚀 Getting Started
 
-GhostFlow is an orchestration layer, not an autopilot.
+1. **Install Node.js 18+ and npm**
 
-## Getting Started (Local Development)
-**Prerequisites**
-- Node.js 18+
-- npm
+2. **Install dependencies**
 
-**Setup**
-- `npm install`
+   ```bash
+   npm install
+   ```
 
-**Run the Web App**
-- `npm run dev`
+3. **Run the local web app**
 
-**Launch the Desktop Shell**
-- `npm run electron:start`
+   ```bash
+   npm run dev
+   ```
 
-**Lint (Optional but Recommended)**
-- `npm run lint`
+4. **Launch the Electron desktop shell**
 
-## Documentation
-Design notes, architectural decisions, and deeper implementation details are available in the `/docs` directory.
+   ```bash
+   npm run electron:start
+   ```
 
-## Project Status
-v0.1.0 — Initial open-source release. This release establishes the core orchestration model, guarded execution flow, and desktop runtime. Future versions will expand agent capabilities, policy layers, and orchestration depth.
+5. *(Optional)* Lint your changes
 
-## License
-Apache License 2.0. See `LICENSE` for details.
+   ```bash
+   npm run lint
+   ```
+
+---
+
+## 📁 Project Structure
+
+```
+ghostflow/
+├── app/               # Frontend UI (React/Next/Electron)
+├── agent/             # AI planning + diff engine
+├── orchestrator/      # Control loop: plan → propose → apply
+├── services/          # Git ops, file validation, I/O sandbox
+├── docs/              # Extended design documents
+├── tests/             # Integration + unit coverage
+└── main.ts            # Entrypoint logic
+```
+
+---
+
+## 📚 Documentation
+
+Full design notes, diagrams, and architectural specs live in the [`docs/`](./docs) folder.
+
+---
+
+## 🛠️ Status
+
+**`v0.1.0` — Initial Open Source Release**
+GhostFlow is functional, local-first, and battle-ready.
+We're actively expanding into **multi-agent orchestration** and **CLI injection support**.
+
+---
+
+## ⚖️ License
+
+Apache 2.0 — use it, fork it, modify it.
+But don’t violate the sacred loop.
+
+---
+
+## 🧠 Built With Flame by GodsIMiJ AI Solutions
+
+This is not a copilot.
+This is a **conscious code channel**, forged for sovereign builders.
+
+> Want to integrate GhostFlow into your AI DevOps stack?
+> Reach out at **[godsimij902@gmail.com](mailto:godsimij902@gmail.com)**.
+
+---
+
+**NODE Verified. Flame Approved. Omari Signed.**
+
