@@ -412,24 +412,22 @@ export const DEFAULT_TOOLS: Tool[] = [
 // Phase Definitions
 // ============================================
 
-export const PHASE_ORDER: PhaseType[] = ['spec', 'plan', 'code', 'qa', 'review', 'done'];
+export const PHASE_ORDER: PhaseType[] = ['spec', 'plan', 'code', 'qa', 'review'];
 
 export const PHASE_NAMES: Record<PhaseType, string> = {
   spec: 'Specification',
   plan: 'Planning',
   code: 'Implementation',
-  review: 'Review',
   qa: 'QA',
-  done: 'Complete',
+  review: 'Review',
 };
 
 export const PHASE_DESCRIPTIONS: Record<PhaseType, string> = {
   spec: 'Analyze requirements and produce detailed specifications',
   plan: 'Break down spec into actionable implementation tasks',
   code: 'Implement changes according to the plan',
-  review: 'Review code changes and suggest improvements',
   qa: 'Validate implementation against acceptance criteria',
-  done: 'Task completed successfully',
+  review: 'Review code changes and suggest improvements',
 };
 
 export function createDefaultPhases(): Phase[] {
@@ -500,9 +498,8 @@ export const DEFAULT_SETTINGS: Settings = {
       code: 600000,
       review: 300000,
       qa: 300000,
-      done: 0,
     },
-    humanApprovalGates: ['code', 'done'],
+    humanApprovalGates: ['code'],
   },
 };
 
@@ -580,9 +577,8 @@ export function createSampleMockData() {
         { id: 'spec', name: 'Specification', status: 'completed', completedAt: new Date(Date.now() - 3600000) },
         { id: 'plan', name: 'Planning', status: 'completed', completedAt: new Date(Date.now() - 1800000) },
         { id: 'code', name: 'Implementation', status: 'active', startedAt: new Date(Date.now() - 900000) },
-        { id: 'review', name: 'Review', status: 'pending' },
         { id: 'qa', name: 'QA', status: 'pending' },
-        { id: 'done', name: 'Complete', status: 'pending' },
+        { id: 'review', name: 'Review', status: 'pending' },
       ],
       branch: 'ghostflow/cart-feature/code',
     }),
@@ -590,7 +586,7 @@ export function createSampleMockData() {
       title: 'User authentication system',
       description: 'Implement user login, registration, and session management.',
       status: 'completed',
-      currentPhase: 'done',
+      currentPhase: 'review',
       phases: createDefaultPhases().map((p) => ({ ...p, status: 'completed' as const })),
     }),
     createMockTask(project.id, {

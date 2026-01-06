@@ -28,8 +28,6 @@ export function TaskCreationDialog({ open, onOpenChange }: TaskCreationDialogPro
   const [enabledPhases, setEnabledPhases] = useState<PhaseType[]>([...PHASE_ORDER]);
 
   const handlePhaseToggle = (phase: PhaseType) => {
-    if (phase === 'done') return; // Done phase is always required
-    
     setEnabledPhases((prev) =>
       prev.includes(phase)
         ? prev.filter((p) => p !== phase)
@@ -110,19 +108,15 @@ export function TaskCreationDialog({ open, onOpenChange }: TaskCreationDialogPro
                     id={`phase-${phase}`}
                     checked={enabledPhases.includes(phase)}
                     onCheckedChange={() => handlePhaseToggle(phase)}
-                    disabled={phase === 'done'}
                     className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                   />
                   <Label
                     htmlFor={`phase-${phase}`}
                     className={`text-sm cursor-pointer flex-1 ${
-                      phase === 'done' ? 'text-muted-foreground' : 'text-foreground'
+                      'text-foreground'
                     }`}
                   >
                     <span className={`phase-${phase}`}>{PHASE_NAMES[phase]}</span>
-                    {phase === 'done' && (
-                      <span className="text-xs text-muted-foreground ml-1">(required)</span>
-                    )}
                   </Label>
                 </div>
               ))}

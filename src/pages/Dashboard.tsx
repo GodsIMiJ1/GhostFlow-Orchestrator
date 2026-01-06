@@ -128,7 +128,6 @@ export default function Dashboard() {
           <PhaseTimeline
             phases={activeTask.phases}
             currentPhase={activeTask.currentPhase}
-            onPhaseClick={(phase) => streamPhase(phase, `agent-${phase}`)}
           />
         </div>
 

@@ -13,6 +13,4 @@ export const PHASE_AGENT_MAP: Record<PhaseType | 'fix', AgentRole | null> = {
   review: 'qa-reviewer',
   // Fix → qa-fixer (phase not currently in PHASE_ORDER)
   fix: 'qa-fixer',
-  // Complete → no agent execution
-  done: null,
 };

@@ -6,7 +6,7 @@
 export type ProviderId = 'ollama' | 'openrouter';
 
 // Phase Types
-export type PhaseType = 'spec' | 'plan' | 'code' | 'review' | 'qa' | 'done';
+export type PhaseType = 'spec' | 'plan' | 'code' | 'qa' | 'review';
 
 export type PhaseStatus = 'pending' | 'active' | 'completed' | 'failed' | 'skipped';
 

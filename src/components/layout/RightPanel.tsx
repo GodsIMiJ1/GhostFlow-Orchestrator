@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOrchestration } from '@/context/OrchestrationContext';
 import { cn } from '@/lib/utils';
 import type { Agent, GitFileStatus, FileOpProposal } from '@/types';
+import { PHASE_ORDER } from '@/data/mock-data';
 
 // Mock git status for demo
 const MOCK_GIT_STATUS = {
@@ -350,9 +351,9 @@ function ConfigPanel({ ollamaConnected }: ConfigPanelProps) {
         <div className="rounded-lg border p-3">
           <span className="text-sm font-medium">Human Approval Gates</span>
           <div className="mt-2 space-y-2">
-            {['code', 'done'].map((phase) => (
+            {PHASE_ORDER.filter((phase) => ['code', 'review'].includes(phase)).map((phase) => (
               <label key={phase} className="flex items-center gap-2">
-                <input type="checkbox" defaultChecked className="rounded" />
+                <input type="checkbox" defaultChecked={phase === 'code'} className="rounded" />
                 <span className="text-sm capitalize">{phase}</span>
               </label>
             ))}

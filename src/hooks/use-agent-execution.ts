@@ -104,12 +104,8 @@ export function useAgentExecution() {
       let nextPhase: PhaseType | null = null;
       try {
         const health = await llmService.checkHealth();
-        const backendOk =
-          health.status === 'ok' ||
-          health.providers.ollama.available ||
-          health.providers.openrouter.available;
-
-        if (!backendOk) {
+        const providerAvailable = health.providers.ollama.available || health.providers.openrouter.available;
+        if (health.status !== 'ok' || !providerAvailable) {
           throw new Error('GhostVault health check failed');
         }
 
@@ -202,7 +198,7 @@ export function useAgentExecution() {
           completePhase(taskId, phase);
           const currentIndex = PHASE_ORDER.indexOf(phase);
           const candidate = currentIndex >= 0 ? PHASE_ORDER[currentIndex + 1] : null;
-          nextPhase = candidate && candidate !== 'done' ? candidate : null;
+          nextPhase = candidate || null;
           dispatch({
             type: 'UPDATE_AGENT',
             payload: { id: agent.id, updates: { status: 'idle', currentTaskId: undefined } },

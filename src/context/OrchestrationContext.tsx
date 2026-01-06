@@ -3,6 +3,8 @@ import type {
   Agent,
   AgentTerminalEntry,
   LogEntry,
+  AgentRole,
+  AgentCategory,
   Phase,
   PhaseType,
   Project,
@@ -20,6 +22,7 @@ import {
   createMockLogEntry,
   PHASE_ORDER,
 } from '@/data/mock-data';
+import { PHASE_AGENT_MAP } from '@/constants/phaseAgentMap';
 import {
   loadTasks,
   saveTasks,
@@ -112,7 +115,7 @@ const persistedSettings = loadSettings();
 const persistedAgents = loadAgents();
 const persistedUI = loadUIState();
 const initialTasks = persistedTasks ?? [];
-const initialAgents = persistedAgents ?? DEFAULT_AGENTS;
+const initialAgents = ensureMappedAgents(persistedAgents ?? DEFAULT_AGENTS);
 
 const initialState: OrchestrationState = {
   projects: [],
@@ -369,7 +372,7 @@ function orchestrationReducer(state: OrchestrationState, action: OrchestrationAc
       };
 
     case 'HYDRATE_STATE': {
-      const nextAgents = action.payload.agents ?? state.agents;
+      const nextAgents = ensureMappedAgents(action.payload.agents ?? state.agents);
       const nextProjects = action.payload.projects ?? state.projects;
       const nextActiveProject = action.payload.activeProject
         ?? (action.payload.ui?.activeProjectId
@@ -422,6 +425,45 @@ interface OrchestrationContextValue {
   toggleLeftSidebar: () => void;
   toggleRightSidebar: () => void;
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
+}
+
+function ensureMappedAgents(existing: Agent[]): Agent[] {
+  const roster = [...existing];
+  const mappedRoles = Object.values(PHASE_AGENT_MAP).filter((role): role is AgentRole => Boolean(role) && role !== 'fix');
+
+  mappedRoles.forEach((role) => {
+    if (!roster.some((agent) => agent.role === role)) {
+      roster.push({
+        id: `agent-${role}`,
+        name: role.split('-').map(capitalize).join(' '),
+        role,
+        category: inferCategory(role),
+        model: 'llama3.2',
+        description: 'Auto-registered mapped agent',
+        constraints: [],
+        allowedTools: [],
+        mcpBindings: [],
+        isActive: true,
+        status: 'idle',
+      });
+    }
+  });
+
+  return roster;
+}
+
+function capitalize(value: string): string {
+  if (!value) return value;
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function inferCategory(role: AgentRole): AgentCategory {
+  if (role.includes('spec')) return 'spec-creation';
+  if (role.includes('qa') || role === 'coder' || role === 'planner' || role === 'merge-resolver') return 'build';
+  if (role.includes('review') || role.includes('commit') || role === 'pr-reviewer') return 'utility';
+  if (role.includes('analysis')) return 'insights';
+  if (role.includes('ideation') || role.includes('roadmap')) return 'ideation';
+  return 'build';
 }
 
 const OrchestrationContext = createContext<OrchestrationContextValue | null>(null);
