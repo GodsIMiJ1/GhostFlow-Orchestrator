@@ -412,7 +412,7 @@ export const DEFAULT_TOOLS: Tool[] = [
 // Phase Definitions
 // ============================================
 
-export const PHASE_ORDER: PhaseType[] = ['spec', 'plan', 'code', 'review', 'qa', 'done'];
+export const PHASE_ORDER: PhaseType[] = ['spec', 'plan', 'code', 'qa', 'review', 'done'];
 
 export const PHASE_NAMES: Record<PhaseType, string> = {
   spec: 'Specification',

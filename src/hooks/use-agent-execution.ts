@@ -5,21 +5,13 @@ import type { AgentRole, FileOp, PhaseType } from '@/types';
 import type { ChatPayload } from '@/services/llm-service';
 import { llmService } from '@/services/llm-service';
 import { generateId, PHASE_NAMES, PHASE_ORDER } from '@/data/mock-data';
+import { PHASE_AGENT_MAP } from '@/constants/phaseAgentMap';
 
 interface ExecuteAgentParams {
   taskId: string;
   phase: PhaseType;
   agentRole?: AgentRole;
 }
-
-const PHASE_AGENT_ROLE: Record<PhaseType, AgentRole | null> = {
-  spec: 'spec-writer',
-  plan: 'planner',
-  code: 'coder',
-  review: 'qa',
-  qa: 'qa',
-  done: null,
-};
 
 export function useAgentExecution() {
   const { state, dispatch, startPhase, completePhase, failPhase } = useOrchestration();
@@ -42,7 +34,7 @@ export function useAgentExecution() {
 
   const resolveAgentRoleForPhase = useCallback(
     (phase: PhaseType): AgentRole => {
-      const role = PHASE_AGENT_ROLE[phase];
+      const role = PHASE_AGENT_MAP[phase];
       if (!role) {
         throw new Error(`No agent role mapped for phase ${phase}`);
       }
@@ -107,6 +99,7 @@ export function useAgentExecution() {
       };
 
       let streamId: string | null = null;
+      let nextPhase: PhaseType | null = null;
       try {
         const health = await llmService.checkHealth();
         const backendOk =
@@ -206,10 +199,8 @@ export function useAgentExecution() {
           }
           completePhase(taskId, phase);
           const currentIndex = PHASE_ORDER.indexOf(phase);
-          const nextPhase = currentIndex >= 0 ? PHASE_ORDER[currentIndex + 1] : undefined;
-          if (nextPhase) {
-            startPhase(taskId, nextPhase);
-          }
+          const candidate = currentIndex >= 0 ? PHASE_ORDER[currentIndex + 1] : null;
+          nextPhase = candidate && candidate !== 'done' ? candidate : null;
           dispatch({
             type: 'UPDATE_AGENT',
             payload: { id: agent.id, updates: { status: 'idle', currentTaskId: undefined } },
@@ -270,6 +261,9 @@ export function useAgentExecution() {
         activeExecutionRef.current = null;
         activeAgentIdRef.current = null;
         setIsExecuting(false);
+        if (nextPhase) {
+          void executeAgent({ taskId, phase: nextPhase });
+        }
       }
     },
     [

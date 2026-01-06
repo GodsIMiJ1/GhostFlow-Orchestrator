@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ThreePaneLayout } from '@/components/layout/ThreePaneLayout';
 import { AgentSelector, AgentTerminal } from '@/components/agents';
 import { MCPBindingsPanel } from '@/components/agents/MCPBindingsPanel';
@@ -20,6 +20,13 @@ export default function AgentTerminalsPage() {
   const [mcpPanelOpen, setMcpPanelOpen] = useState(false);
 
   const selectedAgent = agents.find((a) => a.id === selectedAgentId) || null;
+  
+  useEffect(() => {
+    const workingAgent = agents.find((a) => a.status === 'working');
+    if (workingAgent && workingAgent.id !== selectedAgentId) {
+      setSelectedAgentId(workingAgent.id);
+    }
+  }, [agents, selectedAgentId]);
   
   const filteredEntries = useMemo(() => {
     if (!selectedAgent) return [];
