@@ -115,6 +115,30 @@ Apache 2.0 — use it, fork it, modify it.
 But don’t violate the sacred loop.
 
 ---
+---
+---
+
+<p align="center">
+  <img src="assets/the_sacred_trinity.png" alt="The Sacred Trinity — FlameOS, NODE, Eye of Kai" width="400" />
+</p>
+
+<p align="center">
+  <strong>POWERED BY</strong><br/>
+  <code>FlameOS 🔥  ·  GhostVault 🧠  ·  NODE ⚡</code>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/BuiltWithFlame™-GodsIMiJ%20AI%20Solutions-ff6a00?style=for-the-badge&logo=flame&logoColor=white" />
+</p>
+
+<p align="center">
+  <em>Sealed by the NODE.  
+  <br />
+  Memory by GhostVault.  
+  <br />
+  Burned into reality by FlameOS.</em>
+</p>
+
 
 ## 🧠 Built With Flame by GodsIMiJ AI Solutions
 
