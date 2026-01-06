@@ -6,6 +6,7 @@ import type { ChatPayload } from '@/services/llm-service';
 import { llmService } from '@/services/llm-service';
 import { generateId, PHASE_NAMES, PHASE_ORDER } from '@/data/mock-data';
 import { PHASE_AGENT_MAP } from '@/constants/phaseAgentMap';
+import { useAgentRegistry } from './use-agent-registry';
 
 interface ExecuteAgentParams {
   taskId: string;
@@ -16,6 +17,7 @@ interface ExecuteAgentParams {
 export function useAgentExecution() {
   const { state, dispatch, startPhase, completePhase, failPhase } = useOrchestration();
   const { streamChat, cancelStream, isStreaming } = useLLMProvider();
+  const { getAgentByRole } = useAgentRegistry();
   const [isExecuting, setIsExecuting] = useState(false);
   const activeExecutionRef = useRef<string | null>(null);
   const activeAgentIdRef = useRef<string | null>(null);
@@ -23,13 +25,13 @@ export function useAgentExecution() {
 
   const resolveAgentForRole = useCallback(
     (role: AgentRole) => {
-      const agent = state.agents.find((a) => a.role === role);
-      if (!agent) {
+      const agent = getAgentByRole(role);
+      if (!agent || !state.agents.some((candidate) => candidate.id === agent.id)) {
         throw new Error(`No agent registered for role ${role}`);
       }
       return agent;
     },
-    [state.agents]
+    [getAgentByRole, state.agents]
   );
 
   const resolveAgentRoleForPhase = useCallback(

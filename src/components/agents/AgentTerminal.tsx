@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Agent } from '@/types/orchestrator';
+import type { RegistryAgent } from '@/hooks/use-agent-registry';
 import { AgentTerminalEntry } from '@/types/terminals';
 import { TerminalEntry } from './TerminalEntry';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { PanelRightClose } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AgentTerminalProps {
-  agent: Agent | null;
+  agent: RegistryAgent | null;
   entries: AgentTerminalEntry[];
   currentPhase?: string;
   onToggleMCPPanel?: () => void;
@@ -47,15 +48,29 @@ export function AgentTerminal({
   }
 
   const mcpCount = agent.mcpBindings?.length || 0;
+  const statusLabel = getStatusLabel(agent);
 
   return (
     <div className="flex-1 flex flex-col terminal-bg">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border/30">
         <div className="flex items-center justify-between">
-          <h2 className="font-mono text-sm font-medium uppercase tracking-wider">
-            {agent.name} Terminal
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-mono text-sm font-medium uppercase tracking-wider">
+              {agent.name} Terminal
+            </h2>
+            <span
+              className={cn(
+                "px-2 py-0.5 rounded-full text-[11px] font-semibold",
+                agent.runtimeStatus === 'running' && "bg-status-active/20 text-status-active",
+                agent.runtimeStatus === 'done' && "bg-status-success/20 text-status-success",
+                agent.runtimeStatus === 'error' && "bg-status-error/20 text-status-error",
+                agent.runtimeStatus === 'idle' && "bg-muted/40 text-muted-foreground"
+              )}
+            >
+              {statusLabel}
+            </span>
+          </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground/60">
             {currentPhase && (
               <span>Phase: <span className="text-muted-foreground">{currentPhase}</span></span>
@@ -95,7 +110,7 @@ export function AgentTerminal({
         )}
         
         {/* Blinking cursor when agent is working */}
-        {agent.status === 'working' && (
+        {(agent.status === 'working' || agent.runtimeStatus === 'running') && (
           <div className="px-4 py-1 font-mono text-sm">
             <span className="terminal-text animate-pulse">▌</span>
           </div>
@@ -125,4 +140,17 @@ export function AgentTerminal({
       </div>
     </div>
   );
+}
+
+function getStatusLabel(agent: RegistryAgent): string {
+  switch (agent.runtimeStatus) {
+    case 'running':
+      return 'Running';
+    case 'done':
+      return 'Done';
+    case 'error':
+      return 'Error';
+    default:
+      return 'Idle';
+  }
 }

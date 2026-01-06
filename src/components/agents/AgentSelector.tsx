@@ -1,15 +1,27 @@
-import { Agent, AgentCategory } from '@/types/orchestrator';
+import { AgentCategory } from '@/types/orchestrator';
 import { cn } from '@/lib/utils';
 import { AgentCategoryGroup } from './AgentCategoryGroup';
+import type { RegistryAgent } from '@/hooks/use-agent-registry';
 
 interface AgentSelectorProps {
-  agents: Agent[];
+  agents: RegistryAgent[];
   selectedAgentId: string | null;
   onSelectAgent: (agentId: string) => void;
 }
 
-function getStatusColor(status: Agent['status']): string {
-  switch (status) {
+function getStatusColor(agent: RegistryAgent): string {
+  switch (agent.runtimeStatus) {
+    case 'running':
+      return 'bg-status-active';
+    case 'done':
+      return 'bg-status-success';
+    case 'error':
+      return 'bg-status-error';
+    default:
+      break;
+  }
+
+  switch (agent.status) {
     case 'working':
       return 'bg-status-active';
     case 'error':
@@ -23,13 +35,13 @@ function getStatusColor(status: Agent['status']): string {
 const CATEGORY_ORDER: AgentCategory[] = ['spec-creation', 'build', 'utility', 'insights', 'ideation'];
 
 export function AgentSelector({ agents, selectedAgentId, onSelectAgent }: AgentSelectorProps) {
-  const groupedAgents = agents.reduce((acc, agent) => {
+  const groupedAgents = agents.reduce((acc, agent: RegistryAgent) => {
     if (!acc[agent.category]) {
       acc[agent.category] = [];
     }
     acc[agent.category].push(agent);
     return acc;
-  }, {} as Record<AgentCategory, Agent[]>);
+  }, {} as Record<AgentCategory, RegistryAgent[]>);
 
   return (
     <div className="flex flex-col h-full border-r border-border/50">
@@ -52,24 +64,38 @@ export function AgentSelector({ agents, selectedAgentId, onSelectAgent }: AgentS
                   className={cn(
                     "w-full flex items-center justify-between gap-2 px-4 py-2 text-left transition-colors",
                     "hover:bg-accent/10",
-                    selectedAgentId === agent.id && "bg-accent/20 border-l-2 border-primary"
+                    selectedAgentId === agent.id && "bg-accent/20 border-l-2 border-primary",
+                    agent.runtimeStatus === 'running' && "ring-1 ring-status-active/40",
+                    agent.runtimeStatus === 'done' && "ring-1 ring-status-success/40"
                   )}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className={cn(
                         "w-1.5 h-1.5 rounded-full shrink-0",
-                        getStatusColor(agent.status),
-                        agent.status === 'working' && "animate-pulse"
+                        getStatusColor(agent),
+                        (agent.status === 'working' || agent.runtimeStatus === 'running') && "animate-pulse"
                       )}
                     />
                     <span className="text-sm text-foreground truncate">
                       {agent.name}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground/50 font-mono shrink-0">
-                    {agent.mcpBindings?.length || 0}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {agent.isComplete && !agent.isExecuting && (
+                      <span className="text-[10px] uppercase text-status-success font-semibold">
+                        Done
+                      </span>
+                    )}
+                    {agent.isExecuting && (
+                      <span className="text-[10px] uppercase text-status-active font-semibold">
+                        Running
+                      </span>
+                    )}
+                    <span className="text-xs text-muted-foreground/50 font-mono">
+                      {agent.mcpBindings?.length || 0}
+                    </span>
+                  </div>
                 </button>
               ))}
             </AgentCategoryGroup>

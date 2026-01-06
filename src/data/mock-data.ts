@@ -188,7 +188,7 @@ export const DEFAULT_AGENTS: Agent[] = [
     allowedTools: ['readFile', 'searchFiles', 'writeFile', 'applyPatch', 'runCommand', 'gitDiff', 'gitStatus', 'gitBranch', 'gitCommit'],
     mcpBindings: ['context7', 'graphiti', 'linear', 'auto-claude-tools'],
     isActive: true,
-    status: 'working',
+    status: 'idle',
   },
   {
     id: 'agent-qa',
