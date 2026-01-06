@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="GhostFlow">
+  <defs>
+    <linearGradient id="gf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#gf)"/>
+  <path d="M152 276c0-68 52-124 118-124 23 0 45 6 62 17V128h36v152c0 63-49 112-110 112-26 0-52-9-72-26l22-28c13 11 31 18 50 18 42 0 74-33 74-76 0-42-32-76-74-76-47 0-82 36-82 86 0 34 15 54 39 70l-21 29c-26-18-42-46-42-87Z" fill="#e5e7eb"/>
+  <circle cx="370" cy="370" r="48" fill="#0ea5e9" opacity="0.9"/>
+  <path d="M352 370l18 18 32-32" stroke="#e5e7eb" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

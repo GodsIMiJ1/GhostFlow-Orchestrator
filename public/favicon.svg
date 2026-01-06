@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GodsIMiJ AI Solutions">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#g)"/>
+  <path d="M18 34c0-9 7-16 16-16 3 0 5.8 1 8 2.6V14h4v16.3c0 8-6.5 13.7-14 13.7-3.1 0-6.2-1.1-8.6-3.2l2.6-3c1.6 1.4 3.7 2.2 6 2.2 5.2 0 9.4-4 9.4-9.4 0-5.3-4.2-9.4-9.4-9.4-6 0-10.6 4.7-10.6 10.8 0 4.5 2 7.2 5 9.3l-2.4 3.2C20.3 43 18 39.4 18 34Z" fill="#e5e7eb"/>
+  <circle cx="46" cy="46" r="6" fill="#0ea5e9" opacity="0.9"/>
+  <path d="M44 46l2 2 4-4" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

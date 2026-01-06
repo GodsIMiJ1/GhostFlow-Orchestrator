@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GhostFlow Orchestrator Design System
+   Terminal-inspired dark theme with status indicators
+   All colors MUST be HSL
+*/
+
+@layer base {
+  :root {
+    /* Light mode - minimal, clean */
+    --background: 220 14% 96%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    --primary: 220 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 90%;
+    --secondary-foreground: 220 20% 10%;
+
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 160 60% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 14% 88%;
+    --input: 220 14% 88%;
+    --ring: 220 70% 50%;
+
+    --radius: 0.5rem;
+
+    /* Status colors */
+    --status-pending: 220 10% 50%;
+    --status-active: 200 95% 50%;
+    --status-success: 160 60% 45%;
+    --status-success-foreground: 0 0% 100%;
+    --status-error: 0 72% 51%;
+    --status-warning: 45 93% 47%;
+
+    /* Phase colors */
+    --phase-spec: 280 60% 55%;
+    --phase-plan: 200 95% 50%;
+    --phase-code: 160 60% 45%;
+    --phase-review: 45 93% 47%;
+    --phase-qa: 320 70% 55%;
+    --phase-done: 160 60% 45%;
+
+    /* Agent colors */
+    --agent-spec: 280 60% 55%;
+    --agent-planner: 200 95% 50%;
+    --agent-coder: 160 60% 45%;
+    --agent-reviewer: 45 93% 47%;
+    --agent-qa: 320 70% 55%;
+
+    /* Terminal colors */
+    --terminal-bg: 220 20% 8%;
+    --terminal-fg: 160 60% 70%;
+    --terminal-cursor: 160 60% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 10% 30%;
+    --sidebar-primary: 220 70% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 94%;
+    --sidebar-accent-foreground: 220 20% 10%;
+    --sidebar-border: 220 14% 90%;
+    --sidebar-ring: 220 70% 50%;
+  }
+
+  .dark {
+    /* Dark mode - terminal-inspired */
+    --background: 220 20% 6%;
+    --foreground: 220 10% 90%;
+
+    --card: 220 20% 9%;
+    --card-foreground: 220 10% 90%;
+
+    --popover: 220 20% 9%;
+    --popover-foreground: 220 10% 90%;
+
+    --primary: 160 60% 50%;
+    --primary-foreground: 220 20% 6%;
+
+    --secondary: 220 20% 14%;
+    --secondary-foreground: 220 10% 90%;
+
+    --muted: 220 20% 12%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 200 95% 55%;
+    --accent-foreground: 220 20% 6%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 15%;
+    --input: 220 20% 15%;
+    --ring: 160 60% 50%;
+
+    /* Status colors - dark mode */
+    --status-pending: 220 10% 45%;
+    --status-active: 200 95% 55%;
+    --status-success: 160 60% 50%;
+    --status-success-foreground: 220 20% 6%;
+    --status-error: 0 72% 55%;
+    --status-warning: 45 93% 50%;
+
+    /* Phase colors - dark mode */
+    --phase-spec: 280 60% 60%;
+    --phase-plan: 200 95% 55%;
+    --phase-code: 160 60% 50%;
+    --phase-review: 45 93% 50%;
+    --phase-qa: 320 70% 60%;
+    --phase-done: 160 60% 50%;
+
+    /* Agent colors - dark mode */
+    --agent-spec: 280 60% 60%;
+    --agent-planner: 200 95% 55%;
+    --agent-coder: 160 60% 50%;
+    --agent-reviewer: 45 93% 50%;
+    --agent-qa: 320 70% 60%;
+
+    /* Terminal colors - dark mode */
+    --terminal-bg: 220 25% 4%;
+    --terminal-fg: 160 60% 70%;
+    --terminal-cursor: 160 60% 50%;
+
+    /* Sidebar - dark mode */
+    --sidebar-background: 220 20% 8%;
+    --sidebar-foreground: 220 10% 75%;
+    --sidebar-primary: 160 60% 50%;
+    --sidebar-primary-foreground: 220 20% 6%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 220 10% 90%;
+    --sidebar-border: 220 20% 12%;
+    --sidebar-ring: 160 60% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Custom scrollbar for terminal aesthetic */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
+
+@layer components {
+  /* Terminal-style components */
+  .terminal-text {
+    @apply font-mono text-sm;
+    color: hsl(var(--terminal-fg));
+  }
+
+  .terminal-bg {
+    background-color: hsl(var(--terminal-bg));
+  }
+
+  /* Status badge styles */
+  .status-pending {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .status-active {
+    background-color: hsl(var(--status-active) / 0.15);
+    color: hsl(var(--status-active));
+    border-color: hsl(var(--status-active) / 0.3);
+  }
+
+  .status-success {
+    background-color: hsl(var(--status-success) / 0.15);
+    color: hsl(var(--status-success));
+    border-color: hsl(var(--status-success) / 0.3);
+  }
+
+  .status-error {
+    background-color: hsl(var(--status-error) / 0.15);
+    color: hsl(var(--status-error));
+    border-color: hsl(var(--status-error) / 0.3);
+  }
+
+  .status-warning {
+    background-color: hsl(var(--status-warning) / 0.15);
+    color: hsl(var(--status-warning));
+    border-color: hsl(var(--status-warning) / 0.3);
+  }
+
+  /* Phase indicator styles */
+  .phase-spec { color: hsl(var(--phase-spec)); }
+  .phase-plan { color: hsl(var(--phase-plan)); }
+  .phase-code { color: hsl(var(--phase-code)); }
+  .phase-review { color: hsl(var(--phase-review)); }
+  .phase-qa { color: hsl(var(--phase-qa)); }
+  .phase-done { color: hsl(var(--phase-done)); }
+
+  /* Glow effects for active elements */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
+  }
+
+  /* Pulsing animation for active states */
+  .pulse-active {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 20px hsl(var(--status-active) / 0.4);
+    }
+    50% {
+      opacity: 0.8;
+      box-shadow: 0 0 30px hsl(var(--status-active) / 0.6);
+    }
+  }
+
+  /* Typing cursor animation */
+  .typing-cursor::after {
+    content: '▋';
+    animation: blink 1s step-end infinite;
+    color: hsl(var(--terminal-cursor));
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+}
+
+@layer utilities {
+  /* Text gradient utility */
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  }
+
+  /* Border gradient */
+  .border-gradient {
+    border: 1px solid transparent;
+    background: linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+                linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.5)) border-box;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply backdrop-blur-md;
+    background: hsl(var(--card) / 0.8);
+  }
+}

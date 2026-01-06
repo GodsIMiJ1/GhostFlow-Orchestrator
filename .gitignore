@@ -1,0 +1,34 @@
+# Node/Electron/Vite
+node_modules
+dist
+release
+.DS_Store
+*.log
+*.pid
+*.seed
+*.tgz
+*.tmp
+
+# Editor
+.vscode
+.idea
+
+# Env
+.env
+.env.local
+
+# Coverage / tests
+coverage
+
+# Build cache
+.parcel-cache
+.turbo
+.eslintcache
+.stylelintcache
+.cache
+
+# Optional
+pnpm-lock.yaml
+yarn.lock
+**/.pnpm-debug.log*
+**/.yarn-integrity
